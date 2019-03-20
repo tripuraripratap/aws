@@ -1,0 +1,142 @@
+##################### Assignment 1 ######################
+Do the following
+.	Create the EC2 instance in Mumbai region
+.	Create keys and security groups so as to remote login
+.	Login using putty
+.	Try out a pscp file transfer both ways
+
+Soln: 
+Open Command prompt and run below:
+C:\Users\pratap_t>pscp -i C:\Users\pratap_t\Downloads\sunilassignment_pvtkey.ppk -ls "ec2-user@35.154.26.146":/etc/
+C:\Users\pratap_t>pscp -i C:\Users\pratap_t\Downloads\sunilassignment_pvtkey.ppk C:\Users\pratap_t\test.txt "ec2-user@35.154.26.146":/tmp/
+
+##################### Assignment 2 ######################
+Since some of you have completed assignment 1, here is its logical extension. 
+•	Install aws command line tools on your local machine
+•	Explore aws command line options to interact with various services
+•	Identify specific commands for your EC2 instance, to start / stop / check if running. Going forward, we will try to avoid console UI and interact only from CLI.
+
+Soln. install aws cli on windows machine.
+ran command : aws configure
+C:\Users\pratap_t>aws configure
+AWS Access Key ID [****************GYZA]: ********************
+AWS Secret Access Key [****************TXcO]: ****************************************
+Default region name [us-east-2]: ap-south-1
+Default output format [None]:
+
+After above ran below commands:
+aws ec2 describe-instances | grep -i Instance
+aws ec2 describe-instance-status
+aws ec2 stop-instances --instance-ids i-013c6504926515acd --force
+aws ec2 start-instances --instance-ids i-013c6504926515acd
+aws ec2 describe-instances --query 'Reservations[*].Instances[*].[Placement.AvailabilityZone, State.Name, InstanceId, PublicDnsName]' --output table
+##################### Assignment 3 ########################
+•	Install Python3 on your VM
+•	Identify that one line python command to start and serve static web pages
+•	Create a minimal Hello World html file
+•	Start the server
+•	On your local machine, open up chrome and access the page using the url http://<ip_address>:8888. 
+	Make note that page should be served on port 8888
+	Use aws cli commands to start / stop the instances.
+	If you need to change any firewall groups, make sure to do that as well using aws cli.
+
+
+make a bootstrap script containing below lines and add before launching VM:
+#!/bin/bash
+sudo yum update -y
+sudo yum install centos-release-sci scl-utils-build -y
+sudo yum install gcc -y
+cd /usr/src
+sudo wget https://www.python.org/ftp/python/3.4.8/Python-3.4.8.tgz
+sudo tar xzf Python-3.4.8.tgz
+cd Python-3.4.8
+sudo ./configure --enable-optimizations
+sudo make altinstall
+arn:aws:iam::202101293202:instance-profile/MyS3AdminAccess
+
+aws ec2 create-security-group --group-name MySecurityGroup --description "My security group"
+[root@ip-172-31-27-216 ec2-user]# aws ec2 create-security-group --group-name MySecurityGroup --description "My security group"
+{
+    "GroupId": "sg-07cb1fd232bfdca6f"
+}
+aws s3api create-bucket --bucket myassignment120320191504 --region us-east-1
+aws s3 ls
+aws s3api put-object --bucket tripuraribucket20190220 --key index.html --body C:\Users\pratap_t\index.html
+create role on ec2 having S3FullAdminAccess. say role name MyS3AdminAccess
+run in a browser--> what is my ip-->say it is 42.106.193.201
+aws ec2 authorize-security-group-ingress --group-name MySecurityGroup --protocol tcp --port 8888 --cidr 0.0.0.0/0
+aws ec2 authorize-security-group-ingress --group-name MySecurityGroup --protocol tcp --port 22 --cidr 0.0.0.0/0
+aws ec2 describe-subnets --query 'Subnets[*].[SubnetId]'
+aws ec2 describe-security-groups --query 'SecurityGroups[*].GroupId[*]
+aws ec2 run-instances --iam-instance-profile Name=MyS3Adminaccess --image-id ami-03103e7ded4c02ef8 --count 1 --instance-type t2.micro --key-name trainingkeypair --security-group-ids sg-07cb1fd232bfdca6f --subnet-id subnet-7ae9be12 --user-data file://E:\AWS\aws\bootstrap.bash
+
+run in a browser http://1.186.113.15:8888
+
+MyS3AdminAccess
+
+
+
+login to instance 74.121.137.99 & run below commands
+aws s3 cp s3://tripuraribucket20190220/bootstrap.sh /usr/src/
+/usr/src/bootstrap.sh
+
+##################### Assignment 4 ########################
+Here is the assignment 4 :
+1.	Set up your instance in such a way that it starts the python static page server whenever instance is started.
+		Done
+2.	Using IAM, create three users – sunil, atul, narayan. Sent u the access token and access key csv file. 
+		Provided
+3.	Send us the shortest possible aws cli commands, by which, we can Note: Below are commands under each point.
+(a) check if your instance is running 
+		aws ec2 describe-instances --query 'Reservations[*].Instances[*].[Placement.AvailabilityZone, State.Name, InstanceId]' --output table
+(b) start it
+		aws ec2 start-instances --instance-ids i-0a2c14317f8e3b3a0
+(c) Identify its public IP address 
+		aws ec2 describe-instances --query 'Reservations[*].Instances[*].[Placement.AvailabilityZone, State.Name, InstanceId, PublicIpAddress, PublicDnsName]' --output table
+(d) stop it
+		aws ec2 stop-instances --instance-ids i-0a2c14317f8e3b3a0 --force
+4.	Set up alerts so that you come to know whenever we start and stop your instance. In case we forget to stop it, you should feel free to stop it after 15 minutes.
+		Done
+
+###################### Assignment 5 ##########################
+* Create a github account for you
+* Create a new repository named ""aws"" to upload your code and other deliverables
+* Install git client on your machine
+* Create a new directory and initialize it as a git repository
+* At the root, create a file named ""commands.txt"" and note down useful aws commands e.g. start instance, stop instance, etc. DO NOT STORE ANY USERNAMES OR PASSWORDS in that file.
+* Commit and upload the repo to git server. Using WEB UI, confirm that your public git account does not contain any other file except this one. Going foward, keep this file current with mor eand more aws cli commands as we progress in the assignments.
+* Commit index.html from Assignment #3 to the git repo. Use web ui to confirm that git repo does not contain any files other than these two.
+
+git clone https://github.com/tripuraripratap/aws.git
+git add README.md
+git add commands.txt
+git add index.html
+git commit -m "create aws repo in github"
+git push origin master
+
+###################### Assignment 6 ##########################
+The intent of this assignment is to establish a automated pipeline from code to deployment. 
+* Improve index.html such that, instead of just ""Hello World"", it should print ""Hello World. The time is 12:30 PM on 26-Feb-2019"". The time should change   with every refresh of browser i.e. F5. In addition, as long as the page is visible in browser, the time should change every 10 seconds""
+* Make changes to index.html on your local machine and commit it to github
+* On every restart of AWS VM, you should pull the latest index.html from github and show that.
+
+
+###################### Assignment 7 ##########################
+There are three mini assignments grouped into a single assignment. Going forward, I will create longer assignments which could take upto couple of hours and hence split into mini assignments. But I need the updates only when entire assignment is complete.
+7a. Write server side code in Python Flask
+* Instead of static files, serve the dynamic from Python code
+* If the URL is http://<ip_address>:8888/, it should serve the same ""Hello World Current Time"" page from assignment 6.
+* If the URL is http://<ip_address>:8888/uc/hello%20world, it should serve the output of a lambda function. Refer assignment 7b.
+* If the URL is http://<ip_address>:8888/login, it should serve a login page from a file login.html. Refer assignment 7c.
+7b. Create a lambda function in Python which, if given a string, converts to uppercase
+7c. Create login.html page which could be used to offer a login functionality. There is no guideline on appearance but use your imagination to come up with something in line with login pages from popular sites. It should have username,password,forgot password and any other functionality that you feel relevant. 
+ 
+Change all your auto-start scripts accordingly. Check in the html files and the python lamdba code in github. Follow all file naming conventions. Check in other valuable stuff in github so that, even if you have to create the instance from scratch, you don't lose anything.
+
+###################### Assignment 8 ###########################
+"This assignment is about using Amazon's readymade services for machine learning. 
+1. Design a web page where user can upload an image by selecting from various images on local laptop or local desktop. The end user will only type the URL of http://<your ip>:8888/image in the browser. 
+2. On submit, the image should be stored in an S3 bucket.
+3. Call an AWS lambda function, which will pick up the image from S3 and call an AWS service to identify the content of the image (e.g. car, signboard, food product etc.)
+4. Show the result on the same web page.
+Like with all assignments, check in the code in Github and refresh the VM with Github code at instance startup. "

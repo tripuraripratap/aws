@@ -1,0 +1,47 @@
+#!/bin/bash
+# chkconfig: 2345 20 80
+# description: Description comes here....
+
+# Source function library.
+. /etc/init.d/functions
+
+start() {
+    sudo su
+	yum update -y
+	yum install python3 -y
+        yum install flask -y
+        yum install boot3 -y
+        mkdir /usr/src/templates
+	cd /usr/src
+	aws s3 cp s3://tripuraribucket20190220/index.html /usr/src/templates
+        aws s3 cp s3://tripuraribucket20190220/upper.html /usr/src/templates
+        aws s3 cp s3://tripuraribucket20190220/login.html /usr/src/templates
+        aws s3 cp s3://tripuraribucket20190220/testlambda.py /usr/src/
+        chmod 755 /usr/src/testlambda.py
+	nohup python3 /usr/src/testlambda.py 8888 &
+}
+
+stop() {
+    kill -9 `ps -ef | grep python3 | grep -v grep | awk '{print $2}'` 
+}
+
+case "$1" in 
+    start)
+       start
+       ;;
+    stop)
+       stop
+       ;;
+    restart)
+       stop
+       start
+       ;;
+    status)
+       echo "Working Fine" 
+       ;;
+    *)
+       echo "Usage: $0 {start|stop|status|restart}"
+esac
+
+exit 0
+
